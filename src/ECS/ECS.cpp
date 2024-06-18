@@ -1,3 +1,5 @@
 #include "ECS.h"
 
-//impl all functions from ecs.h
+int Entity::GetId() const{
+    return _id;
+}
