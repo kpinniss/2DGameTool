@@ -48,6 +48,12 @@ class Entity
         Entity(const Entity& Entity) = default;
         int GetId() const;
         bool IsEqual(Entity other_e);
+
+        Entity& operator =(const Entity& other) = default;
+        bool operator ==(const Entity& other) const { return _id == other._id; }
+        bool operator !=(const Entity& other) const { return _id != other._id; }
+        bool operator >(const Entity& other) const { return _id > other._id; }
+        bool operator <(const Entity& other) const { return _id < other._id; }
 };
 
 /////////////////
@@ -152,6 +158,10 @@ class Registry {
         // map (dictionary) of active systems
         std::unordered_map<std::type_index, System> Systems;
 
+        // Set of entities that are flagged to be added or removed in the next registry Update()
+        std::set<Entity> EntitiesToCreate;
+        std::set<Entity> EntitiesToDestroy;
+
         public:
             Registry() = default;
             
@@ -177,8 +187,6 @@ class Registry {
             //checks component sig of any entity and adds the entity to Systems
             void AddEntityToSystems(Entity e);
 };
-//System Methods
-
 template <typename T, typename ...TArgs> 
 void Registry::AddSystem(TArgs&& ...args){
     T* newSystem(new T(std::forward<TArgs>(args)...));
@@ -202,7 +210,6 @@ T Registry::GetSystem() const{
     return *(std::static_pointer_cast<T>(sys->second));
 }
 
-//Component Methods
 template <typename T>
 void Registry::RemoveComponent(Entity e){
     const auto compId = Component<T>::GetId();

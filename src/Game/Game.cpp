@@ -7,6 +7,7 @@
 
 Game::Game(){
     _gameRunning = false;
+    _registry = new Registry();
     Logger::Log("Game contructor called.");
 }
 
@@ -50,9 +51,8 @@ void Game::Init(){
 
 void Game::Setup(){
     //TODO::
-    //Entit tank = registry.CreateEnt();
-    //tank.addComponent<TransformComponent>();
-    //...etc
+    Entity ent1 = _registry->CreateEntity();
+    Entity ent2 = _registry->CreateEntity();
 }
 
 void Game::Update(){
