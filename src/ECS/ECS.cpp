@@ -1,6 +1,8 @@
 #include "ECS.h"
 #include <algorithm>
 
+int IComponent::_nextId = 0;
+
 int Entity::GetId() const{
     return _id;
 }
@@ -25,4 +27,19 @@ const SIGNATURE& System::GetSignature() const{
 
 bool Entity::IsEqual(Entity other_e){
     return _id == other_e.GetId();
+}
+
+void Registry::AddEntityToSystems(Entity e){
+    const auto eId = e.GetId();
+    //todo match entityComponentSig to systemsCompSig
+    const auto& eCompSig = EntityComponentSignatures[eId];
+
+    for(auto& sys: Systems){
+        const auto& sysCompSig = sys.second.GetSignature();
+        //bitewise opperation to compare bitsets. If matched add entity
+        bool isInterested = (eCompSig & sysCompSig) == sysCompSig;
+        if(isInterested){
+            sys.second.AddEntity(e);
+        }
+    }
 }
