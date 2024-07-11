@@ -4,11 +4,12 @@
 #include "Game.h"
 #include "../Logger/Logger.h"
 #include "../ECS/ECS.h"
+#include "TransformComponent.h"
 
 Game::Game(){
-    _gameRunning = false;
-    _registry = new Registry();
     Logger::Log("Game contructor called.");
+    _gameRunning = false;
+    _registry = std::make_unique<Registry>();
 }
 
 Game::~Game(){
@@ -38,8 +39,6 @@ void Game::Init(){
         return;
     }
 
-    // SDL_SetWindowBordered(_window, SDL_TRUE);
-
     _renderer = SDL_CreateRenderer(_window,-1,0);
     if(!_renderer){
         Logger::Err("Error creating renderer");
@@ -50,9 +49,14 @@ void Game::Init(){
 }
 
 void Game::Setup(){
-    //TODO::
+    //TODO
     Entity ent1 = _registry->CreateEntity();
-    Entity ent2 = _registry->CreateEntity();
+    _registry->AddComponent<TransformComponent>(
+        ent1, 
+        glm::vec2(10.0,10.0),
+        glm::vec2(1.0, 1.0),
+        0
+    );
 }
 
 void Game::Update(){

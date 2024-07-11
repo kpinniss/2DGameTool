@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <memory>
-
+#include "../Logger/Logger.h"
 
 const unsigned int MAX_COMPONENTS = 32;
 /////////////////
@@ -148,7 +148,7 @@ class Registry {
         // Vector component pools
         // Each pool contains all the data for a certain component type
         // [vector index = componentId], [pool index = entity]
-        std::vector<IPool*> ComponentPools;
+        std::vector<std::shared_ptr<IPool>> ComponentPools;
 
         // Vector of component signatures
         // the signature keeps track of which components are active
@@ -156,15 +156,19 @@ class Registry {
         std::vector<SIGNATURE> EntityComponentSignatures;
 
         // map (dictionary) of active systems
-        std::unordered_map<std::type_index, System> Systems;
+        std::unordered_map<std::type_index, std::shared_ptr<System>> Systems;
 
         // Set of entities that are flagged to be added or removed in the next registry Update()
         std::set<Entity> EntitiesToCreate;
         std::set<Entity> EntitiesToDestroy;
 
         public:
-            Registry() = default;
-            
+            Registry() {
+                Logger::Log("Registry Created");
+            }
+            ~Registry() {
+                Logger::Log("Registry Destroyed");
+            }
             // TODO:
             void Update();
 
@@ -187,9 +191,13 @@ class Registry {
             //checks component sig of any entity and adds the entity to Systems
             void AddEntityToSystems(Entity e);
 };
+
+///
+//Registry Methods
+///
 template <typename T, typename ...TArgs> 
 void Registry::AddSystem(TArgs&& ...args){
-    T* newSystem(new T(std::forward<TArgs>(args)...));
+    std::shared_ptr<T> newSystem = std::make_shared<T>(std::forward<TArgs>(args)...);
     Systems.insert(std::make_pair(std::type_index(typeid(T)), newSystem));
 }
 
@@ -233,10 +241,10 @@ void Registry::AddComponent(Entity e, TArgs&& ...args){
         ComponentPools.resize(compId + 1, nullptr);
     }
     if(!ComponentPools[compId]){
-        Pool<T>* newCompPool = new Pool<T>();
+        std::shared_ptr<Pool<T>> newCompPool = std::make_shared<Pool<T>>();
         ComponentPools[compId] = newCompPool;
     }
-    Pool<T>* compPool = ComponentPools[compId];
+    std::shared_ptr<Pool<T>> compPool = std::static_pointer_cast<Pool<T>>(ComponentPools[compId]);
     if(entityId >= compPool.GetSize()){
         compPool->Resize(EntityCount);
     }
@@ -245,6 +253,9 @@ void Registry::AddComponent(Entity e, TArgs&& ...args){
     EntityComponentSignatures[entityId].set(compId); 
 }
 
+///
+//System Methods
+///
 template <typename T> 
 void System::RequireComponent(){
     const auto compId = Component<T>::GetId();

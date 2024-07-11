@@ -47,11 +47,11 @@ void Registry::AddEntityToSystems(Entity e){
     //todo match entityComponentSig to systemsCompSig
     const auto& eCompSig = EntityComponentSignatures[eId];
     for(auto& sys: Systems){
-        const auto& sysCompSig = sys.second.GetSignature();
+        const auto& sysCompSig = sys.second->GetSignature();
         //bitewise opperation to compare bitsets. If matched add entity
         bool isInterested = (eCompSig & sysCompSig) == sysCompSig;
         if(isInterested){
-            sys.second.AddEntity(e);
+            sys.second->AddEntity(e);
         }
     }
 }

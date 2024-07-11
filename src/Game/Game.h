@@ -15,7 +15,7 @@ class Game
     int _milLastFrame = 0;
     SDL_Window* _window;
     SDL_Renderer* _renderer;
-    Registry* _registry;
+    std::unique_ptr<Registry> _registry; //uses smar pointer std::unique_ptr for memory alloc and garb collection
 
     public:
     Game();
