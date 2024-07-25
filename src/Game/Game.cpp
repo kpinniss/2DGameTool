@@ -3,20 +3,24 @@
 #include <glm/glm.hpp>
 #include "Game.h"
 #include "../Logger/Logger.h"
-#include "../ECS/ECS.h"
-#include "TransformComponent.h"
+#include "../ECS/Registry.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/RigidbodyComponent.h"
 
-Game::Game(){
+Game::Game()
+{
     Logger::Log("Game contructor called.");
     _gameRunning = false;
     _registry = std::make_unique<Registry>();
 }
 
-Game::~Game(){
+Game::~Game()
+{
     Logger::Log("Game destructor called.");
 }
 
-void Game::Init(){
+void Game::Init()
+{
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
         Logger::Err("Error initializing SDL");
         return;
@@ -48,18 +52,24 @@ void Game::Init(){
     _gameRunning = true;
 }
 
-void Game::Setup(){
+void Game::Setup()
+{
     //TODO
     Entity ent1 = _registry->CreateEntity();
-    _registry->AddComponent<TransformComponent>(
-        ent1, 
+
+    ent1.AddComponent<TransformComponent>(
         glm::vec2(10.0,10.0),
         glm::vec2(1.0, 1.0),
         0
     );
+    ent1.AddComponent<RigidbodyComponent>(
+        glm::vec2(20.0,0.0)
+    );  
+    ent1.RemoveComponent<TransformComponent>();
 }
 
-void Game::Update(){
+void Game::Update()
+{
     
     //handle timing
     int timeToWait = Mil_Per_Frame - (SDL_GetTicks() - _milLastFrame);
@@ -78,9 +88,11 @@ void Game::Update(){
     //...etc
 }
 
-void Game::ProcessInput(){
+void Game::ProcessInput()
+{
     SDL_Event event;
-    while(SDL_PollEvent(&event)){
+    while(SDL_PollEvent(&event))
+    {
         switch (event.type)
         {
         case SDL_QUIT:
@@ -103,14 +115,16 @@ void Game::ProcessInput(){
     }
 }
 
-void Game::Render(){
+void Game::Render()
+{
     SDL_SetRenderDrawColor(_renderer,100,100,100,255); //draw purple with r =100/255 and b = 100/255
     SDL_RenderClear(_renderer);
     //TODO: Render game objects
     SDL_RenderPresent(_renderer); //swap buffers
 }
 
-void Game::Run(){
+void Game::Run()
+{
     Setup();
     while (_gameRunning)
     {
@@ -121,7 +135,8 @@ void Game::Run(){
     
 }
 
-void Game::Destroy(){
+void Game::Destroy()
+{
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();

@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include <SDL2/SDL.h>
-#include "../ECS/ECS.h"
+#include "../ECS/Registry.h"
 
 const int FPS = 60;
 const int Mil_Per_Frame = 1000 / FPS;
@@ -15,7 +15,7 @@ class Game
     int _milLastFrame = 0;
     SDL_Window* _window;
     SDL_Renderer* _renderer;
-    std::unique_ptr<Registry> _registry; //uses smar pointer std::unique_ptr for memory alloc and garb collection
+    std::unique_ptr<Registry> _registry; 
 
     public:
     Game();
