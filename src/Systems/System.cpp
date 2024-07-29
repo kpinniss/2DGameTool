@@ -10,7 +10,8 @@ void System::AddEntity(Entity entity)
 
 void System::RemoveEntity(Entity entity)
 {
-    Entities.erase(std::remove_if(Entities.begin(), Entities.end(), [&entity](Entity other) {
+    Entities.erase(std::remove_if(Entities.begin(), Entities.end(), [&entity](Entity other) 
+    {
         return entity.IsEqual(other);   
     }), Entities.end());
 }

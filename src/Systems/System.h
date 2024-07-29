@@ -28,7 +28,8 @@ class System
 //System Methods
 ///
 template <typename T> 
-void System::RequireComponent(){
+void System::RequireComponent()
+{
     const auto compId = Component<T>::GetId();
     ComponentSignature.set(compId);
 }

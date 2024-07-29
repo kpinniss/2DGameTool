@@ -10,7 +10,8 @@ class IPool
 };
 
 template <typename T> 
-class Pool : public IPool {
+class Pool : public IPool 
+{
     
     private:
         std::vector<T> Collection;
@@ -61,6 +62,5 @@ class Pool : public IPool {
         {
             return Collection[index];
         }
-
 };
 #endif

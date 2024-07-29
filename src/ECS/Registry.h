@@ -15,7 +15,8 @@ class System;
 /////////////////
 /// REGISTRY
 /////////////////
-class Registry {
+class Registry 
+{
     private:
         int EntityCount = 0;
 
@@ -37,10 +38,12 @@ class Registry {
         std::set<Entity> EntitiesToDestroy;
 
         public:
-            Registry() {
+            Registry() 
+            {
                 Logger::Log("Registry Created");
             }
-            ~Registry() {
+            ~Registry() 
+            {
                 Logger::Log("Registry Destroyed");
             }
             // TODO:

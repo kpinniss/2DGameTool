@@ -8,7 +8,8 @@ struct TransformComponent
     glm::vec2 Scale;
     double Rotation;
 
-    TransformComponent(
+    TransformComponent
+    (
         glm::vec2 pos = glm::vec2(0,0), 
         glm::vec2 scale = glm::vec2(1,1), 
         double rotation = 0.0

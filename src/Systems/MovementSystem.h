@@ -4,12 +4,14 @@
 class MovementSystem : public System
 {
     public:
-    MovementSystem(){
+    MovementSystem()
+    {
         //TODO: RequireComponent<TransformComponent>();
         //RequireComponent<T>();
     }
 
-    void Update(){
+    void Update()
+    {
         //TODO:
         //Update eneity position based on velocity per frame
     }

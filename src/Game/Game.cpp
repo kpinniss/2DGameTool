@@ -21,7 +21,8 @@ Game::~Game()
 
 void Game::Init()
 {
-    if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
+    if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
         Logger::Err("Error initializing SDL");
         return;
     }
@@ -30,7 +31,8 @@ void Game::Init()
     SDL_GetCurrentDisplayMode(0,&displayMode);
     _windowHeight = displayMode.h;
     _windowWidth = displayMode.w;
-    _window = SDL_CreateWindow(
+    _window = SDL_CreateWindow
+    (
         "Game Tool", 
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
@@ -56,15 +58,8 @@ void Game::Setup()
 {
     //TODO
     Entity ent1 = _registry->CreateEntity();
-
-    ent1.AddComponent<TransformComponent>(
-        glm::vec2(10.0,10.0),
-        glm::vec2(1.0, 1.0),
-        0
-    );
-    ent1.AddComponent<RigidbodyComponent>(
-        glm::vec2(20.0,0.0)
-    );  
+    ent1.AddComponent<TransformComponent>(glm::vec2(10.0,10.0), glm::vec2(1.0, 1.0), 0);
+    ent1.AddComponent<RigidbodyComponent>(glm::vec2(20.0,0.0));  
     ent1.RemoveComponent<TransformComponent>();
 }
 
@@ -73,7 +68,8 @@ void Game::Update()
     
     //handle timing
     int timeToWait = Mil_Per_Frame - (SDL_GetTicks() - _milLastFrame);
-    if(timeToWait > 0 && timeToWait <= Mil_Per_Frame){
+    if(timeToWait > 0 && timeToWait <= Mil_Per_Frame)
+    {
         SDL_Delay(timeToWait);
     } 
     //alg: convert difference to seconds
