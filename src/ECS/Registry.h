@@ -65,7 +65,6 @@ class Registry
             template <typename T> void RemoveSystem();
             template <typename T> bool HasSystem() const;
             template <typename T> T GetSystem() const;
-            template <typename T> T GetComponent(Entity e) const;
             //checks component sig of any entity and adds the entity to Systems
             void AddEntityToSystems(Entity e);
 };

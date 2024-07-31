@@ -6,6 +6,9 @@
 #include "../ECS/Registry.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidbodyComponent.h"
+#include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
+#include "../Components/SpriteComponent.h"
 
 Game::Game()
 {
@@ -56,11 +59,23 @@ void Game::Init()
 
 void Game::Setup()
 {
-    //TODO
+    //add systems that need to be processed
+    _registry->AddSystem<MovementSystem>();
+    _registry->AddSystem<RenderSystem>();
+    
+    //create entity
     Entity ent1 = _registry->CreateEntity();
+    //add components
     ent1.AddComponent<TransformComponent>(glm::vec2(10.0,10.0), glm::vec2(1.0, 1.0), 0);
-    ent1.AddComponent<RigidbodyComponent>(glm::vec2(20.0,0.0));  
-    ent1.RemoveComponent<TransformComponent>();
+    ent1.AddComponent<RigidbodyComponent>(glm::vec2(30.0,0.0));
+    ent1.AddComponent<SpriteComponent>(10,10);
+
+    //create entity
+    Entity ent2 = _registry->CreateEntity();
+    //add components
+    ent2.AddComponent<TransformComponent>(glm::vec2(50.0,150.0), glm::vec2(1.0, 1.0), 0);
+    ent2.AddComponent<RigidbodyComponent>(glm::vec2(10.0,0.0));
+    ent2.AddComponent<SpriteComponent>(40,40);
 }
 
 void Game::Update()
@@ -78,10 +93,12 @@ void Game::Update()
     //cache previous frame
     _milLastFrame = SDL_GetTicks();
 
-    //TODO:
-    //MovemoentSystem.Update();
-    //CollisionSystem.Update();
-    //...etc
+    //get systems to update
+    _registry->GetSystem<MovementSystem>().Update(deltaTime);
+    //TODO update all systems
+
+    //update registry once all systems are updated
+    _registry->Update();
 }
 
 void Game::ProcessInput()
@@ -115,7 +132,10 @@ void Game::Render()
 {
     SDL_SetRenderDrawColor(_renderer,100,100,100,255); //draw purple with r =100/255 and b = 100/255
     SDL_RenderClear(_renderer);
-    //TODO: Render game objects
+    
+    //invoke all systems that need to render
+    _registry->GetSystem<RenderSystem>().Update(_renderer);
+
     SDL_RenderPresent(_renderer); //swap buffers
 }
 
