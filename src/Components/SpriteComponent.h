@@ -2,18 +2,27 @@
 #define SPRIT_COMPONENT_H
 #include <glm/glm.hpp>
 #include <string>
+#include <SDL2/SDL.h>
 
 struct SpriteComponent 
 {
     int _width, _height;
     std::string _assetId;
+    SDL_Rect srcRect;
     //contructors
     SpriteComponent() = default;
-    SpriteComponent(std::string assetId, int width = 10, int height = 10)
+    SpriteComponent(
+        std::string assetId, 
+        int width = 10, 
+        int height = 10,
+        int srcRectX = 0,
+        int srcRectY = 0
+    )
     {
         this->_width = width; 
         this->_height = height;
         this->_assetId = assetId;
+        this->srcRect = {srcRectX, srcRectY, width, height};
     };
 };
 #endif

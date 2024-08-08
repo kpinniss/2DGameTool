@@ -66,27 +66,23 @@ void Game::Setup()
     _registry->AddSystem<RenderSystem>();
     
     //Add assets to store
-    _assetStore->AddTexture(_renderer, "tank-image", "../assets/iamges/tank-panther-right.png");
-    _assetStore->AddTexture(_renderer, "truck-image", "../assets/iamges/truck-ford-right.png");
+    _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
+    _assetStore->AddTexture(_renderer, "truck-image", "./assets/images/truck-ford-down.png");
 
-    //create entity
-    Entity ent1 = _registry->CreateEntity();
-    //add components
-    ent1.AddComponent<TransformComponent>(glm::vec2(10.0,10.0), glm::vec2(1.0, 1.0), 0);
-    ent1.AddComponent<RigidbodyComponent>(glm::vec2(30.0,0.0));
-    ent1.AddComponent<SpriteComponent>("tank-image",10,10);
+    // Create an entity
+    Entity tank = _registry->CreateEntity();
+    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
+    tank.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
+    tank.AddComponent<SpriteComponent>("tank-image", 32, 32);
 
-    //create entity
-    Entity ent2 = _registry->CreateEntity();
-    //add components
-    ent2.AddComponent<TransformComponent>(glm::vec2(50.0,150.0), glm::vec2(1.0, 1.0), 0);
-    ent2.AddComponent<RigidbodyComponent>(glm::vec2(10.0,0.0));
-    ent2.AddComponent<SpriteComponent>("truck",40,40);
+    Entity truck = _registry->CreateEntity();
+    truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
+    truck.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 50.0));
+    truck.AddComponent<SpriteComponent>("truck-image", 32, 32);
 }
 
 void Game::Update()
 {
-    
     //handle timing
     int timeToWait = Mil_Per_Frame - (SDL_GetTicks() - _milLastFrame);
     if(timeToWait > 0 && timeToWait <= Mil_Per_Frame)
@@ -140,7 +136,7 @@ void Game::Render()
     SDL_RenderClear(_renderer);
     
     //invoke all systems that need to render
-    _registry->GetSystem<RenderSystem>().Update(_renderer);
+    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetStore);
 
     SDL_RenderPresent(_renderer); //swap buffers
 }

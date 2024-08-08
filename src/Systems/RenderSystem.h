@@ -5,6 +5,7 @@
 #include "../Components/TransformComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Logger/Logger.h"
+#include "../AssetStore/AssetStore.h"
 #include <SDL2/SDL.h>
 
 class RenderSystem : public System
@@ -16,29 +17,30 @@ class RenderSystem : public System
         RequireComponent<SpriteComponent>();
     }
 
-    void Update(SDL_Renderer* renderer)
+    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore)
     {
        for(auto e: GetEntities()){
             //TODO update entity position
             const TransformComponent& transform = e.GetComponent<TransformComponent>();
             const SpriteComponent& sprite = e.GetComponent<SpriteComponent>();
-
-            SDL_Rect objectToRender = {
+            //create source and destination rects of sprite
+            SDL_Rect srcRect = sprite.srcRect;
+            SDL_Rect destRect = {
                 static_cast<int>(transform.Position.x),
                 static_cast<int>(transform.Position.y),
-                sprite._width,
-                sprite._height
+                static_cast<int>(sprite._width * transform.Scale.x),
+                static_cast<int>(sprite._height * transform.Scale.y)
             };
-            SDL_SetRenderDrawColor(renderer, 200,0,255,255);
-            SDL_RenderFillRect(renderer, &objectToRender);
-            //log
-            // Logger::Log
-            // (
-            //     "Entity id: "+ std::to_string(e.GetId()) +
-            //     "Position: (x: " + std::to_string(transform.Position.x) +
-            //     " y: " +std::to_string(+transform.Position.y ) +
-            //     ")"
-            //   );
+            //draw png texture
+            SDL_RenderCopyEx(
+                renderer, 
+                assetStore->GetTexture(sprite._assetId),
+                &srcRect,
+                &destRect,
+                transform.Rotation,
+                NULL,
+                SDL_FLIP_NONE
+            );
         }
     }
 };
