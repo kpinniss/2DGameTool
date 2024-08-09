@@ -29,6 +29,9 @@ class Game
     void Render();
     void Destroy();
     void Setup();
+    void LoadLevel(int level);
+    int _baseSize = 32;
+    double _baseScale = 2.0;
 };
 
 #endif
