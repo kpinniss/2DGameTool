@@ -11,6 +11,7 @@
 #include "../Models/Pool.h"
 #include "../Models/Util.h"
 #include "../Systems/System.h"
+#include <deque>
 class System;
 /////////////////
 /// REGISTRY
@@ -37,6 +38,9 @@ class Registry
         std::set<Entity> EntitiesToCreate;
         std::set<Entity> EntitiesToDestroy;
 
+        // Queue of free entity ids (previously destroyed entities)
+        std::deque<int> FreeEntityIds;
+
         public:
             Registry() 
             {
@@ -51,7 +55,7 @@ class Registry
 
             //Entity Management
             Entity CreateEntity();
-
+            void DestroyEntity(Entity e);
             //Component Management
             //template functions must be described in the header file appose to the cpp file like other functions
             template <typename T, typename ...TArgs> void AddComponent(Entity e, TArgs&& ...args);
@@ -67,6 +71,7 @@ class Registry
             template <typename T> T GetSystem() const;
             //checks component sig of any entity and adds the entity to Systems
             void AddEntityToSystems(Entity e);
+            void RemoveEntityFromSystems(Entity e);
 };
 
 ///

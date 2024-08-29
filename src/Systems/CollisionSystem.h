@@ -55,6 +55,8 @@ class CollisionSystem : public System
                 );
                 if(CheckCollision(boxA, boxB))
                 {
+                    a.Destroy();
+                    b.Destroy();
                     Logger::Log("Collision detected");
                     Logger::Log("Entity A: " + std::to_string(a.GetId()));
                     Logger::Log("Entity B: " + std::to_string(b.GetId()));

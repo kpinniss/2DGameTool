@@ -32,6 +32,7 @@ class Game
     void LoadLevel(int level);
     int _baseSize = 32;
     double _baseScale = 2.0;
+    bool _viewGizmos = false;
 };
 
 

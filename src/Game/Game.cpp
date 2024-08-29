@@ -15,6 +15,7 @@
 #include "../Utils/FileReaderUtil.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
+#include "../Systems/RenderGizmosSystem.h"
 #include <vector>
 #include <fstream>
 
@@ -83,6 +84,7 @@ void Game::LoadLevel(int level)
     _registry->AddSystem<RenderSystem>();
     _registry->AddSystem<AnimationSystem>();
     _registry->AddSystem<CollisionSystem>();
+    _registry->AddSystem<RenderGizmosSystem>();
     
     //Add assets to store
     _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -125,13 +127,13 @@ void Game::LoadLevel(int level)
     tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
     tank.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
     tank.AddComponent<SpriteComponent>("tank-image", _baseSize, _baseSize, ENEMY_LAYER);
-    tank.AddComponent<BoxColliderComponent>(_baseSize, _baseSize);
+    tank.AddComponent<BoxColliderComponent>(_baseSize*_baseScale, _baseSize*_baseScale);
 
     Entity truck = _registry->CreateEntity();
     truck.AddComponent<TransformComponent>(glm::vec2(110.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
     truck.AddComponent<RigidbodyComponent>(glm::vec2(-20.0, 0.0));
     truck.AddComponent<SpriteComponent>("truck-image", _baseSize, _baseSize, ENEMY_LAYER);
-    truck.AddComponent<BoxColliderComponent>(_baseSize,_baseSize);
+    truck.AddComponent<BoxColliderComponent>(_baseSize*_baseScale, _baseSize*_baseScale);
 
     Entity chopper = _registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 200.0), glm::vec2(_baseScale,_baseScale), 0.0);
@@ -144,6 +146,7 @@ void Game::LoadLevel(int level)
     radar.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
     radar.AddComponent<SpriteComponent>("radar-image", _baseSize * 2, _baseSize * 2, UI_LAYER);
     radar.AddComponent<AnimationComponent>(8, 10, true);
+    radar.Destroy();
 }
 
 void Game::Setup()
@@ -189,7 +192,9 @@ void Game::ProcessInput()
             case SDLK_ESCAPE:
                 _gameRunning = false;
                 break;
-            
+            case SDLK_0:
+                _viewGizmos = !_viewGizmos;
+                break;
             default:
                 break;
             }
@@ -207,7 +212,10 @@ void Game::Render()
     
     //invoke all systems that need to render
     _registry->GetSystem<RenderSystem>().Update(_renderer, _assetStore);
-
+    if(_viewGizmos)
+    {
+        _registry->GetSystem<RenderGizmosSystem>().Update(_renderer);
+    }
     SDL_RenderPresent(_renderer); //swap buffers
 }
 

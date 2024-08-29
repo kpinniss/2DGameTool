@@ -13,6 +13,7 @@ class Entity
     public:
         Entity(int id): _id(id){};
         Entity(const Entity& Entity) = default;
+        void Destroy();
         int GetId() const;
         bool IsEqual(Entity other_e);
 

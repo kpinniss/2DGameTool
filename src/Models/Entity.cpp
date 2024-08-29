@@ -9,3 +9,8 @@ bool Entity::IsEqual(Entity other_e)
 {
     return _id == other_e.GetId();
 }
+
+void Entity::Destroy()
+{
+    registry->DestroyEntity(*this);
+}
