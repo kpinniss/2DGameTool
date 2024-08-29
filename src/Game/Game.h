@@ -34,4 +34,5 @@ class Game
     double _baseScale = 2.0;
 };
 
+
 #endif

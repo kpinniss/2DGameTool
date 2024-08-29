@@ -6,7 +6,7 @@
 
 struct SpriteComponent 
 {
-    int _width, _height;
+    int _width, _height, z_index;
     std::string _assetId;
     SDL_Rect srcRect;
     //contructors
@@ -15,12 +15,14 @@ struct SpriteComponent
         std::string assetId, 
         int width = 10, 
         int height = 10,
+        int zindex = 0,
         int srcRectX = 0,
         int srcRectY = 0
     )
     {
         this->_width = width; 
         this->_height = height;
+        this->z_index = zindex;
         this->_assetId = assetId;
         this->srcRect = {srcRectX, srcRectY, width, height};
     };

@@ -9,10 +9,24 @@
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Components/SpriteComponent.h"
+#include "../Components/AnimationComponent.h"
+#include "../Components/BoxColliderComponent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Utils/FileReaderUtil.h"
+#include "../Systems/AnimationSystem.h"
+#include "../Systems/CollisionSystem.h"
 #include <vector>
 #include <fstream>
+
+enum LayerType
+{
+    TILEMAP_LAYER,
+    TILE_LAYER,
+    ENEMY_LAYER,
+    PLAYER_LAYER,
+    PROJECTILE_LAYER,
+    UI_LAYER
+};
 
 Game::Game()
 {
@@ -67,9 +81,13 @@ void Game::LoadLevel(int level)
     //add systems that need to be processed
     _registry->AddSystem<MovementSystem>();
     _registry->AddSystem<RenderSystem>();
+    _registry->AddSystem<AnimationSystem>();
+    _registry->AddSystem<CollisionSystem>();
     
     //Add assets to store
     _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
+    _assetStore->AddTexture(_renderer, "chopper-image", "./assets/images/chopper.png");
+    _assetStore->AddTexture(_renderer, "radar-image", "./assets/images/radar.png");
     _assetStore->AddTexture(_renderer, "truck-image", "./assets/images/truck-ford-down.png");
     _assetStore->AddTexture(_renderer, "tilemap-image", "./assets/tilemaps/jungle.png");
 
@@ -97,21 +115,35 @@ void Game::LoadLevel(int level)
                 glm::vec2(_baseScale, _baseScale), 
                 0.0
             );
-            tile.AddComponent<SpriteComponent>("tilemap-image", _baseSize, _baseSize, srcX, srcY);
+            tile.AddComponent<SpriteComponent>("tilemap-image", _baseSize, _baseSize, TILEMAP_LAYER, srcX, srcY);
         }
     }
     mapFile.close();
 
-    // Create an entity
+    //Create game entities
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
-    tank.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
-    tank.AddComponent<SpriteComponent>("tank-image", _baseSize, _baseSize);
+    tank.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
+    tank.AddComponent<SpriteComponent>("tank-image", _baseSize, _baseSize, ENEMY_LAYER);
+    tank.AddComponent<BoxColliderComponent>(_baseSize, _baseSize);
 
     Entity truck = _registry->CreateEntity();
-    truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(_baseScale,_baseScale), 0.0);
-    truck.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 50.0));
-    truck.AddComponent<SpriteComponent>("truck-image", _baseSize, _baseSize);
+    truck.AddComponent<TransformComponent>(glm::vec2(110.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
+    truck.AddComponent<RigidbodyComponent>(glm::vec2(-20.0, 0.0));
+    truck.AddComponent<SpriteComponent>("truck-image", _baseSize, _baseSize, ENEMY_LAYER);
+    truck.AddComponent<BoxColliderComponent>(_baseSize,_baseSize);
+
+    Entity chopper = _registry->CreateEntity();
+    chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 200.0), glm::vec2(_baseScale,_baseScale), 0.0);
+    chopper.AddComponent<RigidbodyComponent>(glm::vec2(80.0, 0.0));
+    chopper.AddComponent<SpriteComponent>("chopper-image", _baseSize, _baseSize, PLAYER_LAYER);
+    chopper.AddComponent<AnimationComponent>(2, 15, true);
+
+    Entity radar = _registry->CreateEntity();
+    radar.AddComponent<TransformComponent>(glm::vec2((_windowWidth - (_baseSize * 2)) / 2, 0.0), glm::vec2(_baseScale,_baseScale), 0.0);
+    radar.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
+    radar.AddComponent<SpriteComponent>("radar-image", _baseSize * 2, _baseSize * 2, UI_LAYER);
+    radar.AddComponent<AnimationComponent>(8, 10, true);
 }
 
 void Game::Setup()
@@ -132,13 +164,13 @@ void Game::Update()
 
     //cache previous frame
     _milLastFrame = SDL_GetTicks();
+    //update registry once all systems are updated
+    _registry->Update();
 
     //get systems to update
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
-    //TODO update all systems
-
-    //update registry once all systems are updated
-    _registry->Update();
+    _registry->GetSystem<AnimationSystem>().Update();
+    _registry->GetSystem<CollisionSystem>().Update();
 }
 
 void Game::ProcessInput()
