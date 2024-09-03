@@ -2,9 +2,11 @@
 #define EVENT_SYSTEM_H
 #include <functional>
 #include <vector>
+#include "System.h"
 
 
-class EventSystem {
+class EventSystem : public System
+{
 public:
 
 private:

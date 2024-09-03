@@ -5,6 +5,8 @@
 #include "../Components/TransformComponent.h"
 #include "../Logger/Logger.h"
 #include <SDL2/SDL.h>
+#include "../Events/EventBus.h"
+#include "../Events/CollisionEvent.h"
 
 struct BoxCollider{
     int x, y, w, h;
@@ -26,7 +28,7 @@ class CollisionSystem : public System
         RequireComponent<TransformComponent>();
     }
 
-    void Update()
+    void Update(std::unique_ptr<EventBus>& eventBus)
     {
         auto entities = GetEntities();
        //loop over each entity and check for collisions
@@ -55,11 +57,13 @@ class CollisionSystem : public System
                 );
                 if(CheckCollision(boxA, boxB))
                 {
-                    a.Destroy();
-                    b.Destroy();
+                    // a.Destroy();
+                    // b.Destroy();
                     Logger::Log("Collision detected");
                     Logger::Log("Entity A: " + std::to_string(a.GetId()));
                     Logger::Log("Entity B: " + std::to_string(b.GetId()));
+
+                    eventBus->EmitEvent<CollisionEvent>(a,b);
                 }
             }
        }

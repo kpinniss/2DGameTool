@@ -16,6 +16,7 @@
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/RenderGizmosSystem.h"
+#include "../Systems/DamageSystem.h"
 #include <vector>
 #include <fstream>
 
@@ -35,6 +36,7 @@ Game::Game()
     _gameRunning = false;
     _registry = std::make_unique<Registry>();
     _assetStore = std::make_unique<AssetStore>();
+    _eventBus = std::make_unique<EventBus>();
 }
 
 Game::~Game()
@@ -85,6 +87,7 @@ void Game::LoadLevel(int level)
     _registry->AddSystem<AnimationSystem>();
     _registry->AddSystem<CollisionSystem>();
     _registry->AddSystem<RenderGizmosSystem>();
+    _registry->AddSystem<DamageSystem>();
     
     //Add assets to store
     _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -162,18 +165,27 @@ void Game::Update()
     {
         SDL_Delay(timeToWait);
     } 
+
     //alg: convert difference to seconds
     double deltaTime = (SDL_GetTicks() - _milLastFrame) / 1000.0;
 
     //cache previous frame
     _milLastFrame = SDL_GetTicks();
+
+    //reset all event handlers
+    _eventBus->Reset();
+
+    //subscride to events
+    _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
+
     //update registry once all systems are updated
     _registry->Update();
 
     //get systems to update
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<AnimationSystem>().Update();
-    _registry->GetSystem<CollisionSystem>().Update();
+    _registry->GetSystem<CollisionSystem>().Update(_eventBus);
+    _registry->GetSystem<DamageSystem>().Update();
 }
 
 void Game::ProcessInput()
