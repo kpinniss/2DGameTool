@@ -59,9 +59,9 @@ class CollisionSystem : public System
                 {
                     // a.Destroy();
                     // b.Destroy();
-                    Logger::Log("Collision detected");
-                    Logger::Log("Entity A: " + std::to_string(a.GetId()));
-                    Logger::Log("Entity B: " + std::to_string(b.GetId()));
+                    // Logger::Log("Collision detected");
+                    // Logger::Log("Entity A: " + std::to_string(a.GetId()));
+                    // Logger::Log("Entity B: " + std::to_string(b.GetId()));
 
                     eventBus->EmitEvent<CollisionEvent>(a,b);
                 }

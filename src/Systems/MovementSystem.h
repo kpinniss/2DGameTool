@@ -24,13 +24,13 @@ class MovementSystem : public System
             transform.Position.y += r_body.velocity.y * deltaTime;
 
             //log
-            Logger::Log
-            (
-                "Entity id: "+ std::to_string(e.GetId()) +
-                "Position: (x: " + std::to_string(transform.Position.x) +
-                " y: " +std::to_string(+transform.Position.y ) +
-                ")"
-              );
+            // Logger::Log
+            // (
+            //     "Entity id: "+ std::to_string(e.GetId()) +
+            //     "Position: (x: " + std::to_string(transform.Position.x) +
+            //     " y: " +std::to_string(+transform.Position.y ) +
+            //     ")"
+            //   );
         }
     }
 };

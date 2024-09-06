@@ -35,7 +35,7 @@ class RenderGizmosSystem : public System
             };
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderDrawRect(renderer, &rect);
-            Logger::Log("Drawing collider for entity: " + std::to_string(e.GetId()));
+            // Logger::Log("Drawing collider for entity: " + std::to_string(e.GetId()));
         }
     }
 };

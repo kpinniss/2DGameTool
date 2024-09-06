@@ -18,6 +18,13 @@ void System::RemoveEntity(Entity entity)
 
 std::vector<Entity> System::GetEntities() const
 {
+    
+    // if(Entities.size() > 10000)
+    // {
+    //     Logger::Err("Entities size is too large, exiting...");
+    //     exit(1);
+    // }
+    Logger::Log("Entities size: " + std::to_string(Entities.size()));
     return Entities;
 }
 

@@ -11,12 +11,15 @@
 #include "../Components/SpriteComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../Components/KeyboardControllerComponent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Utils/FileReaderUtil.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/RenderGizmosSystem.h"
 #include "../Systems/DamageSystem.h"
+#include "../Systems/KeyboardControlSystem.h"
+#include "../Events/KeyPressedEvent.h"
 #include <vector>
 #include <fstream>
 
@@ -88,10 +91,11 @@ void Game::LoadLevel(int level)
     _registry->AddSystem<CollisionSystem>();
     _registry->AddSystem<RenderGizmosSystem>();
     _registry->AddSystem<DamageSystem>();
+    _registry->AddSystem<KeyboardControlSystem>();
     
     //Add assets to store
     _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
-    _assetStore->AddTexture(_renderer, "chopper-image", "./assets/images/chopper.png");
+    _assetStore->AddTexture(_renderer, "chopper-image", "./assets/images/chopper-spritesheet.png");
     _assetStore->AddTexture(_renderer, "radar-image", "./assets/images/radar.png");
     _assetStore->AddTexture(_renderer, "truck-image", "./assets/images/truck-ford-down.png");
     _assetStore->AddTexture(_renderer, "tilemap-image", "./assets/tilemaps/jungle.png");
@@ -126,6 +130,18 @@ void Game::LoadLevel(int level)
     mapFile.close();
 
     //Create game entities
+    Entity chopper = _registry->CreateEntity();
+    chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 200.0), glm::vec2(_baseScale,_baseScale), 0.0);
+    chopper.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
+    chopper.AddComponent<SpriteComponent>("chopper-image", _baseSize, _baseSize, PLAYER_LAYER);
+    chopper.AddComponent<AnimationComponent>(2, 15, true);
+    chopper.AddComponent<KeyboardControllerComponent>(
+        glm::vec2(0.0, -35.0),
+        glm::vec2(35.0, 0.0),
+        glm::vec2(0.0, 35.0),
+        glm::vec2(-35.0, 0.0)
+    );
+
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
     tank.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
@@ -138,12 +154,6 @@ void Game::LoadLevel(int level)
     truck.AddComponent<SpriteComponent>("truck-image", _baseSize, _baseSize, ENEMY_LAYER);
     truck.AddComponent<BoxColliderComponent>(_baseSize*_baseScale, _baseSize*_baseScale);
 
-    Entity chopper = _registry->CreateEntity();
-    chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 200.0), glm::vec2(_baseScale,_baseScale), 0.0);
-    chopper.AddComponent<RigidbodyComponent>(glm::vec2(80.0, 0.0));
-    chopper.AddComponent<SpriteComponent>("chopper-image", _baseSize, _baseSize, PLAYER_LAYER);
-    chopper.AddComponent<AnimationComponent>(2, 15, true);
-
     Entity radar = _registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2((_windowWidth - (_baseSize * 2)) / 2, 0.0), glm::vec2(_baseScale,_baseScale), 0.0);
     radar.AddComponent<RigidbodyComponent>(glm::vec2(0.0, 0.0));
@@ -155,6 +165,7 @@ void Game::LoadLevel(int level)
 void Game::Setup()
 {
     LoadLevel(1);
+    Logger::Log("Level Loaded");
 }
 
 void Game::Update()
@@ -177,7 +188,7 @@ void Game::Update()
 
     //subscride to events
     _registry->GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
-
+    _registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(_eventBus);
     //update registry once all systems are updated
     _registry->Update();
 
@@ -185,11 +196,11 @@ void Game::Update()
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<AnimationSystem>().Update();
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
-    _registry->GetSystem<DamageSystem>().Update();
 }
 
 void Game::ProcessInput()
 {
+    
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -210,6 +221,7 @@ void Game::ProcessInput()
             default:
                 break;
             }
+            _eventBus->EmitEvent<KeyPressedEvent>(event.key.keysym.sym);
             break;
         default:
             break;

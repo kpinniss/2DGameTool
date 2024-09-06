@@ -33,9 +33,6 @@ class DamageSystem : public System
 
     }
 
-    private:
-
-
 };
 
-#endif DAMAGEEVENT_H
+#endif //DAMAGEEVENT_H

@@ -68,7 +68,7 @@ class Registry
             template <typename T, typename ...TArgs> void AddSystem(TArgs&& ...args);
             template <typename T> void RemoveSystem();
             template <typename T> bool HasSystem() const;
-            template <typename T> T GetSystem() const;
+            template <typename T> T& GetSystem() const;
             //checks component sig of any entity and adds the entity to Systems
             void AddEntityToSystems(Entity e);
             void RemoveEntityFromSystems(Entity e);
@@ -97,7 +97,7 @@ bool Registry::HasSystem() const
 }
 
 template <typename T> 
-T Registry::GetSystem() const
+T& Registry::GetSystem() const
 {
     auto sys = Systems.find(std::type_index(typeid(T)));
     return *(std::static_pointer_cast<T>(sys->second));

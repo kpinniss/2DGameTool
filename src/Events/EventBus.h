@@ -89,10 +89,12 @@ class EventBus
         // Example: eventBus->EmitEvent<CollisionEvent>(player, enemy);
         /////////////////////////////////////////////////////////////////////// 
         template <typename TEvent, typename ...TArgs>
-        void EmitEvent(TArgs&& ...args) {
+        void EmitEvent(TArgs&& ...args) 
+        {
             auto handlers = subscribers[typeid(TEvent)].get();
             if (handlers) {
-                for (auto it = handlers->begin(); it != handlers->end(); it++) {
+                for (auto it = handlers->begin(); it != handlers->end(); it++) 
+                {
                     auto handler = it->get();
                     TEvent event(std::forward<TArgs>(args)...);
                     handler->Execute(event);
