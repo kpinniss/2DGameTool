@@ -22,15 +22,10 @@ class MovementSystem : public System
             const RigidbodyComponent& r_body = e.GetComponent<RigidbodyComponent>();
             transform.Position.x += r_body.velocity.x * deltaTime;
             transform.Position.y += r_body.velocity.y * deltaTime;
-
-            //log
-            // Logger::Log
-            // (
-            //     "Entity id: "+ std::to_string(e.GetId()) +
-            //     "Position: (x: " + std::to_string(transform.Position.x) +
-            //     " y: " +std::to_string(+transform.Position.y ) +
-            //     ")"
-            //   );
+            transform.Position.x = transform.Position.x < 0 ? 0 : transform.Position.x;
+            transform.Position.y = transform.Position.y < 0 ? 0 : transform.Position.y;
+            transform.Position.x = transform.Position.x >= Game::_mapWidth ? Game::_mapWidth : transform.Position.x;
+            transform.Position.y = transform.Position.y >= Game::_mapHeight ? Game::_mapHeight : transform.Position.y;
         }
     }
 };

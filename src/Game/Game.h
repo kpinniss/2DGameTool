@@ -12,14 +12,14 @@ class Game
 {
     private:
     bool _gameRunning;
-    int _windowHeight;
-    int _windowWidth;
+    
     int _milLastFrame = 0;
     SDL_Window* _window;
     SDL_Renderer* _renderer;
     std::unique_ptr<Registry> _registry;
     std::unique_ptr<AssetStore> _assetStore;
     std::unique_ptr<EventBus> _eventBus;
+    SDL_Rect _camera;
 
     public:
     Game();
@@ -32,9 +32,13 @@ class Game
     void Destroy();
     void Setup();
     void LoadLevel(int level);
-    int _baseSize = 32;
-    double _baseScale = 2.0;
-    bool _viewGizmos = false;
+    static int _baseSize;
+    static double _baseScale;
+    static bool _viewGizmos;
+    static int _windowHeight;
+    static int _windowWidth;
+    static int _mapWidth;
+    static int _mapHeight;
 };
 
 

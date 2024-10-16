@@ -19,7 +19,7 @@ class RenderSystem : public System
         RequireComponent<SpriteComponent>();
     }
 
-    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore)
+    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, SDL_Rect& camera)
     {
         //contain and sort entities by layer
 
@@ -52,8 +52,8 @@ class RenderSystem : public System
             //create source and destination rects of sprite
             SDL_Rect srcRect = sprite.srcRect;
             SDL_Rect destRect = {
-                static_cast<int>(transform.Position.x),
-                static_cast<int>(transform.Position.y),
+                static_cast<int>(transform.Position.x - camera.x),
+                static_cast<int>(transform.Position.y - camera.y),
                 static_cast<int>(sprite._width * transform.Scale.x),
                 static_cast<int>(sprite._height * transform.Scale.y)
             };

@@ -6,6 +6,7 @@
 #include "../ECS/Registry.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidbodyComponent.h"
+#include "../Components/CameraComponent.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Components/SpriteComponent.h"
@@ -20,6 +21,7 @@
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardControlSystem.h"
 #include "../Events/KeyPressedEvent.h"
+#include "../Systems/CameraSystem.h"
 #include <vector>
 #include <fstream>
 
@@ -32,6 +34,14 @@ enum LayerType
     PROJECTILE_LAYER,
     UI_LAYER
 };
+
+int Game::_windowHeight;
+int Game::_windowWidth;
+int Game::_mapWidth;
+int Game::_mapHeight;
+int Game::_baseSize = 32;
+double Game::_baseScale = 2.0;
+bool Game::_viewGizmos = false;
 
 Game::Game()
 {
@@ -57,8 +67,10 @@ void Game::Init()
     
     SDL_DisplayMode displayMode;
     SDL_GetCurrentDisplayMode(0,&displayMode);
-    _windowHeight = displayMode.h;
-    _windowWidth = displayMode.w;
+    // _windowHeight = displayMode.h;
+    // _windowWidth = displayMode.w;
+    _windowHeight = 1000;
+    _windowWidth = 1200;
     _window = SDL_CreateWindow
     (
         "Game Tool", 
@@ -78,7 +90,10 @@ void Game::Init()
         Logger::Err("Error creating renderer");
         return;
     }
-    SDL_SetWindowFullscreen(_window,SDL_WINDOW_FULLSCREEN);
+    // SDL_SetWindowFullscreen(_window,SDL_WINDOW_FULLSCREEN); //apply fullscreen mode by default
+    // Initialize the camera view
+    _camera = {0, 0, _windowWidth, _windowHeight};
+
     _gameRunning = true;
 }
 
@@ -92,6 +107,7 @@ void Game::LoadLevel(int level)
     _registry->AddSystem<RenderGizmosSystem>();
     _registry->AddSystem<DamageSystem>();
     _registry->AddSystem<KeyboardControlSystem>();
+    _registry->AddSystem<CameraSystem>();
     
     //Add assets to store
     _assetStore->AddTexture(_renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -128,6 +144,12 @@ void Game::LoadLevel(int level)
         }
     }
     mapFile.close();
+    int border = (_baseSize * _baseScale);
+    _mapWidth = (mapCols * _baseSize * _baseScale) - border;
+    _mapHeight = (mapRows * _baseSize * _baseScale) - border;
+    _windowWidth = _mapWidth;
+    _windowHeight = _mapHeight;
+    SDL_SetWindowSize(_window, _windowWidth, _windowHeight);
 
     //Create game entities
     Entity chopper = _registry->CreateEntity();
@@ -136,11 +158,12 @@ void Game::LoadLevel(int level)
     chopper.AddComponent<SpriteComponent>("chopper-image", _baseSize, _baseSize, PLAYER_LAYER);
     chopper.AddComponent<AnimationComponent>(2, 15, true);
     chopper.AddComponent<KeyboardControllerComponent>(
-        glm::vec2(0.0, -35.0),
-        glm::vec2(35.0, 0.0),
-        glm::vec2(0.0, 35.0),
-        glm::vec2(-35.0, 0.0)
+        glm::vec2(0.0, -180.0),
+        glm::vec2(180.0, 0.0),
+        glm::vec2(0.0, 180.0),
+        glm::vec2(-180.0, 0.0)
     );
+    chopper.AddComponent<CameraComponent>();
 
     Entity tank = _registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(_baseScale,_baseScale), 0.0);
@@ -196,6 +219,7 @@ void Game::Update()
     _registry->GetSystem<MovementSystem>().Update(deltaTime);
     _registry->GetSystem<AnimationSystem>().Update();
     _registry->GetSystem<CollisionSystem>().Update(_eventBus);
+    _registry->GetSystem<CameraSystem>().Update(_camera);
 }
 
 void Game::ProcessInput()
@@ -235,7 +259,7 @@ void Game::Render()
     SDL_RenderClear(_renderer);
     
     //invoke all systems that need to render
-    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetStore);
+    _registry->GetSystem<RenderSystem>().Update(_renderer, _assetStore, _camera);
     if(_viewGizmos)
     {
         _registry->GetSystem<RenderGizmosSystem>().Update(_renderer);
